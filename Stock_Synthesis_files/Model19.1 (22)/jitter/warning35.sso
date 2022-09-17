@@ -1,0 +1,23 @@
+#V3.30.18.00;_safe;_compile_date:_Sep 30 2021;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
+#_Stock_Synthesis_is_a_work_of_the_U.S._Government_and_is_not_subject_to_copyright_protection_in_the_United_States.
+#_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
+#_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
+#_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
+#_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
+
+This file contains warnings, suggestions and notes generated as files are read and processed
+
+1 1st iteration warning: ssb(endyr)/ssb(styr)= 2.04099e-06; suggest start with larger R0 to get near 0.4; or use depletion fleet option
+2  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 397 7 1985 10 90 73.0129 93.2482
+3  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 397 7 1986 10 90 73.0129 91.2822
+4 Final gradient: 1.54936e+08 is larger than final_conv: 1e-05
+5  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1985 10 90 73.0129 93.2482
+6  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1986 10 90 73.0129 91.2822
+7  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1985 10 90 73.0129 93.2482
+8  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1986 10 90 73.0129 91.2822
+9  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1985 10 90 73.0129 93.2482
+10  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1986 10 90 73.0129 91.2822
+11  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1985 10 90 73.0129 93.2482
+12  adjusted selparm out of base parm bounds (Phase, Iter, Parm#, yr, min, max, base, value) 11 1243 7 1986 10 90 73.0129 91.2822
+13  Number_of_active_parameters_on_or_near_bounds: 1
+N warnings: 13
