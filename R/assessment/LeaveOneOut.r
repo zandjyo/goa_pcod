@@ -156,8 +156,6 @@ SS_doLOO <- function (Model_name = NULL,
     labs(x = 'Leave one out year', y = 'Parameter value') +
     facet_wrap( ~ variable, scales = "free_y", ncol = 2)
   
-  output$Figs <- d
-
   # Table of LOO analysis
   x3 <- data.table(Nat_M = x$Nat_M,
                   annF_Btgt = x$annF_Btgt,
@@ -182,7 +180,7 @@ SS_doLOO <- function (Model_name = NULL,
     dplyr::summarise(bias = mean(value)) %>% 
     dplyr::mutate(p = bias / t(x3[1, ])) -> BIAS
 
-  output$Tables <- BIAS
+  output <- list(BIAS, d)
   
   output
   

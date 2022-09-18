@@ -6,23 +6,9 @@
 
 ## write SS3 files for stock assessment
 
-get_pcod_data <- function(afsc_user = NULL,
-                          afsc_pass = NULL,
-                          akfin_user = NULL,
-                          akfin_pass = NULL,
-                          old_SS_dat_filename = NULL,
+get_pcod_data <- function(old_SS_dat_filename = NULL,
                           new_SS_dat_filename = NULL,
                           new_SS_dat_year = NULL){
-
-## Open up data base connections
-AFSC = odbcConnect("AFSC", 
-                   afsc_user, 
-                   afsc_pass, 
-                   believeNRows=FALSE)
-CHINA = odbcConnect("AKFIN", 
-                    akfin_user, 
-                    akfin_pass, 
-                    believeNRows=FALSE)
 
 ## DEFINE ALL CONSTANTS FOR THIS RUN
 
@@ -94,13 +80,6 @@ source(here::here("R", "data", "GET_GOA_LENCOM2.r"))
 source(here::here("R", "data", "GET_GOA_LL_RPN.r"))
 source(here::here("R", "data", "GET_LENGTH_BY_CATCH_GOA.R"))
 source(here::here("R", "data", "GET_SURV_AGE_cor.r"))
-
-## Get all the alternative data that isn't in AKFIN or AFSC databases
-OLD_SEAS_GEAR_CATCH <- vroom::vroom(here::here('data', 'OLD_SEAS_GEAR_CATCH.csv'))
-Larval_indices <- vroom::vroom(here::here('data', 'Larval_indices.csv'))
-ADFG_IPHC <- vroom::vroom(here::here('data', 'ADFG_IPHC.csv'))
-ALL_STATE_LENGTHS <- vroom::vroom(here::here('data', 'ALL_STATE_LENGTHS.csv'))
-TEMPHW <- vroom::vroom(here::here('data', 'TEMPANDHEAT.csv'))
 
 ## Get all data for data file
 source(here::here("R", "data", "SBSS_GET_ALL_DATA_GOA_PCOD_cor.r"))

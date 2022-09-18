@@ -36,6 +36,23 @@ afsc_pass = "Liam1Fin2Bri3<3!" ## enter afsc password
 akfin_user = "phulson"  ## enter AKFIN username
 akfin_pass = "$blwins1" ## enter AKFIN password
 
+## Open up data base connections
+AFSC = odbcConnect("AFSC", 
+                   afsc_user, 
+                   afsc_pass, 
+                   believeNRows=FALSE)
+CHINA = odbcConnect("AKFIN", 
+                    akfin_user, 
+                    akfin_pass, 
+                    believeNRows=FALSE)
+
+## Get all the alternative data that isn't in AKFIN or AFSC databases
+OLD_SEAS_GEAR_CATCH <- vroom::vroom(here::here('data', 'OLD_SEAS_GEAR_CATCH.csv'))
+Larval_indices <- vroom::vroom(here::here('data', 'Larval_indices.csv'))
+ADFG_IPHC <- vroom::vroom(here::here('data', 'ADFG_IPHC.csv'))
+ALL_STATE_LENGTHS <- vroom::vroom(here::here('data', 'ALL_STATE_LENGTHS.csv'))
+TEMPHW <- vroom::vroom(here::here('data', 'TEMPANDHEAT.csv'))
+
 # previous SS DAT filename, if it exists
 old_SS_dat_filename <- "GOAPcod2021OCT1_10P_CL.dat"
 
@@ -45,14 +62,10 @@ new_SS_dat_filename <- paste0("GOAPcod",
                               ".dat")
 
 # Current assessment year
-new_SS_dat_year <- 2022
+new_SS_dat_year <- year(Sys.Date())
 
 # Run data script
-assessment_data <- get_pcod_data(afsc_user,
-                                 afsc_pass,
-                                 akfin_user,
-                                 akfin_pass,
-                                 old_SS_dat_filename,
+assessment_data <- get_pcod_data(old_SS_dat_filename,
                                  new_SS_dat_filename,
                                  new_SS_dat_year)
 
@@ -71,7 +84,6 @@ model_dir <- here::here("Stock_Synthesis_files", "Model19.1 (22)")
 r4ss::run(dir = model_dir, 
           skipfinished = FALSE,
           show_in_console = TRUE)
-
 
 # read the model output and print diagnostic messages
 model_run <- r4ss::SS_output(dir = model_dir,

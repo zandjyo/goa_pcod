@@ -48,13 +48,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
   scenario_1$Flimitfraction <- 1.0
   
   # Write SS files
-  r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+  r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
                        dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_1"),
                        overwrite = TRUE)
-  base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+  base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
             to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_1", "ss.exe"),
             overwrite = TRUE)
-  base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+  base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
             to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_1", "ss.par"),
             overwrite = TRUE)
   r4ss::SS_writeforecast(scenario_1, 
@@ -87,13 +87,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	scenario_3$Fcast_years [c(3,4)] <- c(CYR - 5, CYR - 1)
 		
 	# Write SS files
-	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
 	                     dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_3"),
 	                     overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_3", "ss.exe"),
 	                overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_3", "ss.par"),
 	                overwrite = TRUE)
 	r4ss::SS_writeforecast(scenario_3, 
@@ -117,13 +117,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	scenario_4$SPRtarget <- 0.75
 	
 	# Write SS files
-	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
 	                     dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_4"),
 	                     overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_4", "ss.exe"),
 	                overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_4", "ss.par"),
 	                overwrite = TRUE)
 	r4ss::SS_writeforecast(scenario_4, 
@@ -151,13 +151,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	scenario_5$ForeCatch <- rbind(scenario_5$ForeCatch,catch)	
 	
 	# Write SS files
-	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
 	                     dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_5"),
 	                     overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_5", "ss.exe"),
 	                overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_5", "ss.par"),
 	                overwrite = TRUE)
 	r4ss::SS_writeforecast(scenario_5, 
@@ -182,13 +182,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	scenario_6$Flimitfraction <- 1.0
 	
 	# Write SS files
-	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
 	                     dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_6"),
 	                     overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_6", "ss.exe"),
 	                overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_6", "ss.par"),
 	                overwrite = TRUE)
 	r4ss::SS_writeforecast(scenario_6, 
@@ -215,13 +215,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	scenario_7$ForeCatch <- r4ss::SS_ForeCatch(x, yrs = CYR:(CYR + 2))
 	
 	# Write SS files
-	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
 	                     dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_7"),
 	                     overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_7", "ss.exe"),
 	                overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_7", "ss.par"),
 	                overwrite = TRUE)
 	r4ss::SS_writeforecast(scenario_7, 
@@ -248,13 +248,13 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	scenario_8$ForeCatch <- r4ss::SS_ForeCatch(x, yrs = CYR:(CYR + 1))
 	
 	# Write SS files
-	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"), 
+	r4ss::copy_SS_inputs(dir.old = here::here("Stock_Synthesis_files", Model_name), 
 	                     dir.new = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_8"),
 	                     overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.exe"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.exe"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_8", "ss.exe"),
 	                overwrite = TRUE)
-	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "ss.par"),
+	base::file.copy(from = here::here("Stock_Synthesis_files", Model_name, "ss.par"),
 	                to = here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "scenario_8", "ss.par"),
 	                overwrite = TRUE)
 	r4ss::SS_writeforecast(scenario_8, 

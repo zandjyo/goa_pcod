@@ -1,4 +1,8 @@
-cond_length_age_corFISH<-function(species=fsh_sp_str,area=sp_area,start_year=fsh_start_yr,max_age1=max_age){
+cond_length_age_corFISH<-function(species = fsh_sp_str,
+                                  area = sp_area,
+                                  start_year = fsh_start_yr,
+                                  max_age1 = max_age,
+                                  len_bins = len_bins){
 
 
   len_age_data<-data.table(GET_DOM_AGE(fsh_sp_str=species,sp_area=area,max_age=max_age1))
@@ -17,7 +21,7 @@ cond_length_age_corFISH<-function(species=fsh_sp_str,area=sp_area,start_year=fsh
 # age bins to use for srv length age data
   bin_width <- 1
   min_age <- 1
-  max_age <- max_age
+  max_age <- max_age1
   age_bins <- seq(min_age,max_age,bin_width)
   num.ages <- length(age_bins)
 

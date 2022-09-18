@@ -6,20 +6,20 @@
 # this function gets data for one region at a time
 # currently all functions are hardcoded for 4 fishing fleets and 1 survey -> 5 total
 
- # new_data           = new_data
- #                               new_file           = new_SS_dat_filename
- #                               new_year           = new_SS_dat_year
- #                               sp_area            = sp_area
- #                               fsh_sp_label       = fsh_sp_label
- #                               fsh_sp_area        = fsh_sp_area
- #                               fsh_sp_str         = fsh_sp_str
- #                               fsh_start_yr       = fsh_start_yr
- #                               srv_sp_str         = srv_sp_str
- #                               srv_start_yr       = srv_start_yr
- #                               len_bins           = len_bins
- #                               max_age            = max_age
- #                               is_new_SS_DAT_file = is_new_SS_DAT_file
- #                               AUXFCOMP           = AUXFCOMP
+# new_data           = new_data
+#                               new_file           = new_SS_dat_filename
+#                               new_year           = new_SS_dat_year
+#                               sp_area            = sp_area
+#                               fsh_sp_label       = fsh_sp_label
+#                               fsh_sp_area        = fsh_sp_area
+#                               fsh_sp_str         = fsh_sp_str
+#                               fsh_start_yr       = fsh_start_yr
+#                               srv_sp_str         = srv_sp_str
+#                               srv_start_yr       = srv_start_yr
+#                               len_bins           = len_bins
+#                               max_age            = max_age
+#                               is_new_SS_DAT_file = is_new_SS_DAT_file
+#                               AUXFCOMP           = AUXFCOMP
 
 
 
@@ -39,12 +39,12 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                               is_new_SS_DAT_file = FALSE,
                               AUXFCOMP = 3)
 {
-
+  
   new_data$sourcefile <- new_file
   new_data$endyr <- new_year
   
-## ----- get REGION catch -----
-
+  ## ----- get REGION catch -----
+  
   test <- paste("SELECT SUM(COUNCIL.COMPREHENSIVE_BLEND_CA.WEIGHT_POSTED)AS TONS,\n ",
                 "COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_SUBAREA AS ZONE,\n ",
                 "COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_GEAR AS GEAR,\n ",
@@ -119,20 +119,20 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                catch = c(0, 0, 0), 
                catch_se = rep(0.05, 3)),
     data.frame(year = CATCH$YEAR, 
-                      seas = 1, 
-                      fleet = CATCH$fleet, 
-                      catch = CATCH$TONS, 
-                      catch_se = 0.05))
-
+               seas = 1, 
+               fleet = CATCH$fleet, 
+               catch = CATCH$TONS, 
+               catch_se = 0.05))
+  
   catch <- catch[order(catch$fleet,catch$year),]
-
+  
   ## write catch data into new data files
   new_data$N_catch <- nrow(catch)
   new_data$catch <- catch
   
-
-## ----- Get trawl survey pop'n estimates -----
- 
+  
+  ## ----- Get trawl survey pop'n estimates -----
+  
   GOA_BIOM <- GET_GOA_BIOM(srv_sp_str)
   GOA_BIOM$index <- 4
   
@@ -155,105 +155,106 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   CPUE$index[CPUE$year < 1990] <- -4
   CPUE$index[CPUE$obs == 1] <- -4
   
-## ----- Get LL survey RPN estimates -----
+  ## ----- Get LL survey RPN estimates -----
   
- LL_RPN <- GET_GOA_LL_RPN(species = srv_sp_str, FYR = LLsrv_start_yr)
- LL_RPN <- LL_RPN[year >= LLsrv_start_yr]
- LL_CPUE <- data.frame(year = LL_RPN$year,
-                       seas = 7,
-                       index = 5,
-                       obs = LL_RPN$rpn,
-                       se_log = LL_RPN$se / LL_RPN$rpn)
- CPUE <- rbind(CPUE, LL_CPUE)
-
-## ----- Get other survey index estimates -----
- 
- ## ADF&G and IPHC survey files included here
- if(exists("ADFG_IPHC")){ 
-   names(ADFG_IPHC) <- names(CPUE)
-   CPUE <- rbind(CPUE, ADFG_IPHC)
- }else {print("Warning:  no ADFG_IPHC file appears to exist here")}
- 
- ## Larval survey indices included here
- if(exists("Larval_indices")){ 
-   names(Larval_indices) <- names(CPUE)
-   CPUE <- rbind(CPUE, Larval_indices)
- }else {print("Warning:  no larval indices file appears to exist here")}
-
- ## write to new data file
- new_data$N_cpue<-nrow(CPUE)
- new_data$CPUE<-CPUE
- 
-## ----- Get trawl survey size composition data -----
-
- SRV_LCOMP_SS <- data.frame(GET_GOA_LCOMP1(species = srv_sp_str,
-                                           bins = len_bins,
-                                           bin = TRUE,
-                                           SS = TRUE,
-                                           seas = 7,
-                                           flt = 4,
+  LLsrv_start_yr <- 1990
+  LL_RPN <- GET_GOA_LL_RPN(species = srv_sp_str, FYR = LLsrv_start_yr)
+  LL_RPN <- LL_RPN[year >= LLsrv_start_yr]
+  LL_CPUE <- data.frame(year = LL_RPN$year,
+                        seas = 7,
+                        index = 5,
+                        obs = LL_RPN$rpn,
+                        se_log = LL_RPN$se / LL_RPN$rpn)
+  CPUE <- rbind(CPUE, LL_CPUE)
+  
+  ## ----- Get other survey index estimates -----
+  
+  ## ADF&G and IPHC survey files included here
+  if(exists("ADFG_IPHC")){ 
+    names(ADFG_IPHC) <- names(CPUE)
+    CPUE <- rbind(CPUE, ADFG_IPHC)
+  }else {print("Warning:  no ADFG_IPHC file appears to exist here")}
+  
+  ## Larval survey indices included here
+  if(exists("Larval_indices")){ 
+    names(Larval_indices) <- names(CPUE)
+    CPUE <- rbind(CPUE, Larval_indices)
+  }else {print("Warning:  no larval indices file appears to exist here")}
+  
+  ## write to new data file
+  new_data$N_cpue<-nrow(CPUE)
+  new_data$CPUE<-CPUE
+  
+  ## ----- Get trawl survey size composition data -----
+  
+  SRV_LCOMP_SS <- data.frame(GET_GOA_LCOMP1(species = srv_sp_str,
+                                            bins = len_bins,
+                                            bin = TRUE,
+                                            SS = TRUE,
+                                            seas = 7,
+                                            flt = 4,
+                                            gender = 0,
+                                            part = 0,
+                                            Nsamp = 100))
+  names(SRV_LCOMP_SS) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
+  
+  
+  ## ----- Get fishery size composition data -----
+  
+  FISHLCOMP <- data.frame(GET_GOA_LENCOMP2(fsh_sp_str1 = 202, 
+                                           len_bins1 = len_bins, 
+                                           fsh_start_yr1 = fsh_start_yr, 
+                                           new_SS_dat_year1 = new_year, 
+                                           seas = 1,
                                            gender = 0,
                                            part = 0,
-                                           Nsamp = 100))
- names(SRV_LCOMP_SS) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
- 
-
-## ----- Get fishery size composition data -----
- 
- FISHLCOMP <- data.frame(GET_GOA_LENCOMP2(fsh_sp_str1 = 202, 
-                                          len_bins1 = len_bins, 
-                                          fsh_start_yr1 = fsh_start_yr, 
-                                          new_SS_dat_year1 = new_year, 
-                                          seas = 1,
-                                          gender = 0,
-                                          part = 0,
-                                          Nsamp = -1)) 
- names(FISHLCOMP) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
-
- if(AUXFCOMP > 0){
-   auxFLCOMP <- LENGTH_BY_CATCH_GOA(fsh_sp_str = fsh_sp_str,
-                                    fsh_sp_label = fsh_sp_label,
-                                    ly = new_year)
-   if(AUXFCOMP == 1) auxFLCOMP <- auxFLCOMP[[1]]
-   if(AUXFCOMP == 2) auxFLCOMP <- auxFLCOMP[[2]]
-   if(AUXFCOMP == 3) auxFLCOMP <- auxFLCOMP[[3]]
-   
-   auxFLCOMP$FltSrv <- 1
-   auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "LONGLINE"] <- 2
-   auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "POT"] <- 3
-   
-   auxflCOMP1 = data.frame(Year = auxFLCOMP$YEAR,
-                           Seas = rep(1, nrow(auxFLCOMP)),
-                           FltSrv = auxFLCOMP$FltSrv,
-                           gender = rep(0, nrow(auxFLCOMP)),
-                           Part = rep(0, nrow(auxFLCOMP)),
-                           Nsamp = auxFLCOMP$Nsamp,
-                           auxFLCOMP[ , 4:(ncol(auxFLCOMP) - 1)])
-   names(auxflCOMP1) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
-   
-   fishLCOMP = subset(FISHLCOMP, FISHLCOMP$Year < 1991)
-   fishLCOMP <- rbind(fishLCOMP, auxflCOMP1)
-   FISHLCOMP <- fishLCOMP[order(fishLCOMP$FltSrv, fishLCOMP$Year), ]
- }
- 
- print("Fisheries LCOMP2 done")
-
- 
-## ----- Get LL survey size composition data -----
-
+                                           Nsamp = -1)) 
+  names(FISHLCOMP) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
+  
+  if(AUXFCOMP > 0){
+    auxFLCOMP <- LENGTH_BY_CATCH_GOA(fsh_sp_str = fsh_sp_str,
+                                     fsh_sp_label = fsh_sp_label,
+                                     ly = new_year)
+    if(AUXFCOMP == 1) auxFLCOMP <- auxFLCOMP[[1]]
+    if(AUXFCOMP == 2) auxFLCOMP <- auxFLCOMP[[2]]
+    if(AUXFCOMP == 3) auxFLCOMP <- auxFLCOMP[[3]]
+    
+    auxFLCOMP$FltSrv <- 1
+    auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "LONGLINE"] <- 2
+    auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "POT"] <- 3
+    
+    auxflCOMP1 = data.frame(Year = auxFLCOMP$YEAR,
+                            Seas = rep(1, nrow(auxFLCOMP)),
+                            FltSrv = auxFLCOMP$FltSrv,
+                            gender = rep(0, nrow(auxFLCOMP)),
+                            Part = rep(0, nrow(auxFLCOMP)),
+                            Nsamp = auxFLCOMP$Nsamp,
+                            auxFLCOMP[ , 4:(ncol(auxFLCOMP) - 1)])
+    names(auxflCOMP1) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
+    
+    fishLCOMP = subset(FISHLCOMP, FISHLCOMP$Year < 1991)
+    fishLCOMP <- rbind(fishLCOMP, auxflCOMP1)
+    FISHLCOMP <- fishLCOMP[order(fishLCOMP$FltSrv, fishLCOMP$Year), ]
+  }
+  
+  print("Fisheries LCOMP2 done")
+  
+  
+  ## ----- Get LL survey size composition data -----
+  
   LL_length <- GET_GOA_LL_LENGTH(species = srv_sp_str,
                                  FYR = LLsrv_start_yr)
   
   names(LL_length) <- c("year", "length", "FREQ")
-
+  
   LL_LENGTHY <- LL_length[ ,list(TOT = sum(FREQ)), by = "year"]
   LL_LENGTH <- merge(LL_length, LL_LENGTHY, by = "year")
   LL_LENGTH$PROP <- LL_LENGTH$FREQ / LL_LENGTH$TOT
-
+  
   grid <- expand.grid(year = sort(unique(LL_LENGTH$year)), length = seq(0, 116, by = 1))
   LL_LENGTHG <- merge(LL_LENGTH, grid, by = c("year", "length"), all = T)
   LL_LENGTHG$PROP[is.na(LL_LENGTHG$PROP)] <- 0
-
+  
   SS3_LLL <- reshape2::dcast(LL_LENGTHG, formula = year ~ length, value.var = "PROP")
   LL_LENGTH <- data.frame(Year = SS3_LLL$year,
                           Seas = 1,
@@ -263,11 +264,11 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                           Nsamp = 100)
   LL_LENGTH <- cbind(LL_LENGTH, SS3_LLL[2:ncol(SS3_LLL)])
   names(LL_LENGTH) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
-
+  
   ## combine all the length comp data
   LCOMP <- rbind(FISHLCOMP, SRV_LCOMP_SS, LL_LENGTH)
   LCOMP[7:ncol(LCOMP), ] <- round(LCOMP[7:ncol(LCOMP), ], 5)
-
+  
   ## write into SS3 files
   new_data$lencomp <- LCOMP
   new_data$lencomp$Nsamp[new_data$lencomp$Nsamp >= 200] <- 200
@@ -275,8 +276,8 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   
   print("All LCOMP done")
   
-
-## ----- Get trawl survey age composition data -----
+  
+  ## ----- Get trawl survey age composition data -----
   
   GOA_ACOMP <- GET_GOA_ACOMP1(srv_sp_str = srv_sp_str, 
                               max_age = max_age,
@@ -290,8 +291,8 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                               Nsamp = 100)
   print("Survey agecomp done")
   
-## ----- Get fishery age composition data -----
-
+  ## ----- Get fishery age composition data -----
+  
   GOA_ACOMPF <- LENGTH4AGE_BY_CATCH_GOA(fsh_sp_str = 202,
                                         fsh_sp_label = "'PCOD'",
                                         ly = new_year, 
@@ -303,16 +304,26 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   names(GOA_ACOMPF) <- names(GOA_ACOMP)
   print("Fisheries agecomp done")
   
-## ----- Get trawl survey conditional age-length data -----
-
-  cond_age_length <- data.frame(cond_length_age_cor(max_age1 = max_age)$norm)
+  ## ----- Get trawl survey conditional age-length data -----
+  
+  svr_cond_al <- cond_length_age_cor(species = srv_sp_str,
+                                     area = sp_area,
+                                     start_year = fsh_start_yr,
+                                     max_age1 = max_age,
+                                     len_bins = len_bins)
+  cond_age_length <- data.frame(svr_cond_al$norm)
   names(cond_age_length) <- names(GOA_ACOMP)
   print("Conditional survey age length done")      
   
-## ----- Get fishery conditional age-length data -----
+  ## ----- Get fishery conditional age-length data -----
   
-  cond_age_lengthFISH <- data.frame(cond_length_age_corFISH(max_age1 = max_age)$norm)
-      
+  fish_cond_al <- cond_length_age_corFISH(species = fsh_sp_str,
+                                          area = sp_area,
+                                          start_year = fsh_start_yr,
+                                          max_age1 = max_age,
+                                          len_bins = len_bins)
+  cond_age_lengthFISH <- data.frame(fish_cond_al$norm)
+  
   ## negating the older fish ages from the file
   cond_age_lengthFISH <- data.table(cond_age_lengthFISH)
   cond_age_lengthFISH[X1 < 2007]$X3 = cond_age_lengthFISH[X1 < 2007]$X3 * -1
@@ -332,8 +343,8 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   new_data$agecomp<-ACOMP
   new_data$N_agecomp<-nrow(ACOMP)
   
-## ----- Get trawl survey mean size-at-age data data -----
-
+  ## ----- Get trawl survey mean size-at-age data data -----
+  
   ## Get all survey Age Data
   
   Age <- GET_SURV_AGE_cor(sp_area = sp_area,
@@ -341,7 +352,7 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                           start_yr = srv_start_yr,
                           max_age = max_age)
   Age$Sur <- 4          #Survey 4 is bottom trawl
-
+  
   
   ## format survey mean size-at-age data for SS3
   AGE_LENGTH_SS <- data.frame(FORMAT_AGE_MEANS1(srv_age_samples = Age,
@@ -352,34 +363,37 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                                                 gender = 0,
                                                 part = 0))
   
-  if (is_new_SS_DAT_file)
-  {
-    names(AGE_LENGTH_SS) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Ageerr", "Ignore", rep(seq(0, max_age, 1), 2))
-  } else
-  {
-    names(AGE_LENGTH_SS) <- names(old_data$MeanSize_at_Age_obs)
-  }
+  names(AGE_LENGTH_SS) <- c("Yr", 
+                            "Seas", 
+                            "FltSrv", 
+                            "Gender", 
+                            "Part", 
+                            "Ageerr", 
+                            "Ignore", 
+                            paste0("a", rep(seq(1, max_age, 1))), 
+                            paste0("N_a", rep(seq(1, max_age, 1))))
+
   
   ## write into SS3 files
   new_data$MeanSize_at_Age_obs <- AGE_LENGTH_SS
   new_data$N_MeanSize_at_Age_obs <- nrow(AGE_LENGTH_SS)
   print("Mean size at age done")
-
-## ----- Get ageing error specs -----
-
+  
+  ## ----- Get ageing error specs -----
+  
   ## Add in ageing error specs
   new_data$agebin_vector = seq(1, max_age, 1)
   error <- matrix(ncol = (max_age + 1), nrow = 2)
   error[1, ] <- rep(-1, max_age + 1)
   error[2, ] <- rep(-0.001, max_age + 1)
   new_data$ageerror <- data.frame(error)
-
-## ----- Add environmental data (look at old Steve function for other indices, this is trimmed down to LL survey q index) -----
+  
+  ## ----- Add environmental data (look at old Steve function for other indices, this is trimmed down to LL survey q index) -----
   
   TEMPHW <- data.table(TEMPHW)
   x1 <- data.table(Yr = TEMPHW$YR, Variable = 1, Value = TEMPHW$TEMP)
   envdata<-data.frame(x1) # whittling down to LL q link
   new_data$envdat <- envdata
-
+  
   new_data
 }

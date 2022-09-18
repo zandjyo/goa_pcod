@@ -1,6 +1,9 @@
 *.p0*
+*.p1*
 *.b0*
+*.b1*
 *.r0*
+*.r1*
 *.std
 *.htp
 *.eva
@@ -44,4 +47,5 @@ revdep
 \.Rhistory
 *\.Rproj
 .Rproj.user
+*.sso
 
