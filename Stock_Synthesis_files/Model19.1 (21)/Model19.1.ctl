@@ -3,7 +3,9 @@
 #_Foreign_copyrights_may_apply._See_copyright.txt_for_more_information.
 #_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
-#_data_and_control_files: GOAPcodYEARMonDay.dat, Model19.1_Year.ctl
+#_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
+
+#_data_and_control_files: GOAPcod2021OCT1_10P_CL.dat // GOAPCOD2020.ctl
 0  # 0 means do not read wtatage.ss; 1 means read and use wtatage.ss and also read and use growth parameters
 1  #_N_Growth_Patterns (Growth Patterns, Morphs, Bio Patterns, GP are terms used interchangeably in SS)
 1 #_N_platoons_Within_GrowthPattern 
@@ -24,9 +26,9 @@
 6 #_Nblock_Patterns
  2 4 1 1 1 1 #_blocks_per_pattern 
 # begin and end years of blocks
- 1996 2005 2006 2022
- 1990 2004 2005 2006 2007 2016 2017 2022
- 2017 2022
+ 1996 2005 2006 2021
+ 1990 2004 2005 2006 2007 2016 2017 2021
+ 2017 2021
  2014 2016
  1976 1976
  1976 2006
@@ -129,7 +131,7 @@
  -10 10 -0.523818 0 0 0 1 # SR_regime_BLK5add_1976
 2 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
 1978 # first year of main recr_devs; early devs can preceed this era
-2019 # last year of main recr_devs; forecast devs start in following year
+2018 # last year of main recr_devs; forecast devs start in following year
 1 #_recdev phase 
 1 # (0/1) to read 13 advanced options
  1967 #_recdev_early_start (0=none; neg value makes relative to recdev_start)

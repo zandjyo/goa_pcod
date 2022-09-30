@@ -170,17 +170,43 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   ## ----- Get other survey index estimates -----
   
   ## ADF&G and IPHC survey files included here
+
   if(exists("ADFG_IPHC")){ 
-    names(ADFG_IPHC) <- names(CPUE)
-    CPUE <- rbind(CPUE, ADFG_IPHC)
+    names(ADFG_IPHC)<-names(CPUE)
+    CPUE<-rbind(CPUE,ADFG_IPHC)
   }else {print("Warning:  no ADFG_IPHC file appears to exist here")}
   
+  # IPHC <- sqlQuery(CHINA, query = ("
+  #               select    *
+  #               from      afsc_host.fiss_rpn
+  #               where     species in ('Pacific cod')"))
+  # 
+  # IPHC %>% 
+  #   rename_all(tolower) %>% 
+  #   filter(fmp_sub_area %in% c("CGOA", "EY/SE", "WGOA", "WY")) %>% 
+  #   group_by(survey_year) %>% 
+  #   summarise(rpn2 = sum(strata_rpn),
+  #             cv = sqrt(sum(boot_sd^2)) / sum(strata_rpn)) %>% 
+  #   rename(year = survey_year,
+  #          obs = rpn2,
+  #          se_log = cv) %>% 
+  #   mutate(seas = 7, index = -6) %>% 
+  #   select(year, seas, index, obs, se_log) -> iphc
+  # 
+  # if(exists("ADFG")){ 
+  #   names(ADFG) <- names(CPUE)
+  # }else {print("Warning:  no ADFG file appears to exist here")}
+  # 
+  # rbind(iphc, ADFG)
+  # 
+  # CPUE <- rbind(CPUE, IPHC, ADFG)
+
   ## Larval survey indices included here
   if(exists("Larval_indices")){ 
     names(Larval_indices) <- names(CPUE)
     CPUE <- rbind(CPUE, Larval_indices)
   }else {print("Warning:  no larval indices file appears to exist here")}
-  
+
   ## write to new data file
   new_data$N_cpue<-nrow(CPUE)
   new_data$CPUE<-CPUE

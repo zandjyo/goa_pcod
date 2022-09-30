@@ -48,4 +48,16 @@ revdep
 *\.Rproj
 .Rproj.user
 *.sso
-
+database_specs.csv
+Data_comparison.xlsx
+catch_diffs.xlsx
+Hist_SSB.xlsx
+Hist_trawl_fit.xlsx
+output/
+plots/
+emailed_data/
+SAFE/
+mngmnt_scenarios/
+retrospectives/
+LeaveOneOut/
+MCMC/

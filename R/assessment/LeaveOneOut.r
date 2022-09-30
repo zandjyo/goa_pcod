@@ -12,7 +12,9 @@ SS_doLOO <- function (Model_name = NULL,
   # Set up LOO necessities
   if (!file.exists(here::here("Stock_Synthesis_files", Model_name, newsubdir))) 
     dir.create(here::here("Stock_Synthesis_files", Model_name, newsubdir))
+  
   subdirnames <- paste0("LOO", years)
+  
   datafile <- r4ss::SS_readdat(file = here::here("Stock_Synthesis_files", Model_name, datafilename))
 
   # Loop thru LOO years
@@ -76,7 +78,7 @@ SS_doLOO <- function (Model_name = NULL,
   ABCfore <- array()
   ABCfore_SD <- array()
 
-  for(i in 1:11){
+  for(i in 1:length(years)){
     x <- data.table(LOO_mods[[i]]$parameters)
     y <- data.table(LOO_mods[[i]]$derived_quants)
     annF_Btgt[i] <- y[Label == 'annF_Btgt']$Value
@@ -124,7 +126,7 @@ SS_doLOO <- function (Model_name = NULL,
                    ABCfore = ABCfore0,
                    ABCfore_SD = ABCfore_SD0)
   
-  x1<-data.table(LOO = c(1:11),
+  x1<-data.table(LOO = c(1:length(years)),
                  Nat_M = Nat_M, 
                  Nat_M_SD = Nat_M_SD, 
                  annF_Btgt = annF_Btgt, 
@@ -155,7 +157,7 @@ SS_doLOO <- function (Model_name = NULL,
     theme_bw(base_size = 16) +
     labs(x = 'Leave one out year', y = 'Parameter value') +
     facet_wrap( ~ variable, scales = "free_y", ncol = 2)
-  
+
   # Table of LOO analysis
   x3 <- data.table(Nat_M = x$Nat_M,
                   annF_Btgt = x$annF_Btgt,
@@ -171,7 +173,7 @@ SS_doLOO <- function (Model_name = NULL,
                    SSBfore = rep(x4$SSBfore, 12),
                    ABCfore = rep(x4$ABCfore, 12))
   x4 <- x3[2:12, ] - x4[2:12, ]
-  x4$LOO <- c(1:11)
+  x4$LOO <- c(1:length(years))
 
   x4 <- melt(x4, 'LOO')
   

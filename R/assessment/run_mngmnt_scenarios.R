@@ -29,7 +29,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
                           SYR = 1977,
                           FCASTY = 15,
                           FLEETS = c(1:3),
-                          do_fig = TRUE){
+                          do_fig = TRUE,
+                          SEXES = 1){
 
   # Set up management scenario folder
   if (!file.exists(here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"))) 
@@ -273,7 +274,7 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 ## Compile scenario output
 
 	scen <- c("scenario_1", "scenario_2", "scenario_3", "scenario_4", "scenario_5", "scenario_6", "scenario_7", "scenario_8")
-	mods1 <- SSgetoutput(dirvec =  here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", scen[1:8]))
+	mods1 <- r4ss::SSgetoutput(dirvec =  here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", scen[1:8]))
 	
 	if(SEXES == 1) sex = 2
 	if(SEXES > 1) sex = 1
@@ -368,11 +369,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 
 	if(do_fig){
 	  
-	  if (!file.exists(here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "mgmnt-plots"))) 
-	    dir.create(here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios", "mgmnt-plots"))
-		
 	  # Get figure data together
-	  x <- SS_output(here::here("Stock_Synthesis_files", Model_name, "mgmnt_scenarios"))
+	  x <- r4ss::SS_output(here::here("Stock_Synthesis_files", Model_name))
 	  SSB_unfished <- data.table(x$derived_quants)[Label == "SSB_unfished"]$Value / sex
 	  
 	  y <- data.table(Yr = c(SYR:EYR),
@@ -433,6 +431,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", "red", 2:6, 8, 9), name = "Scenarios")+
 	    scale_size_manual(values = c(rep(1.5, 3), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Spawning biomass (t)", x = "Year", title = "Projections")
+	  ggsave(here::here("plots", "SS_ALL.png"),
+	         plot = SS_ALL)
 	  
 	  SS_1 <- ggplot(summ2[model %in% unique(summ2$model)[1:4]],
 	                 aes(x = Yr, y = SSB, size = model, color = model, linetype = model, fill = model)) +
@@ -444,6 +444,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_fill_manual(values = c("dark green","orange","red",2),name = "Scenarios")+
 	    scale_color_manual(values = c("dark green","orange","red",2),name = "Scenarios")+
 	    scale_size_manual(values = c(rep(1.5,3),rep(1,7)),name = "Scenarios")+labs(y = "Spawning biomass (t)",x = "Year",title = "Projections MaxFABC")
+	  ggsave(here::here("plots", "SS_1.png"),
+	         plot = SS_1)
 	  
 	  SS_2 <- ggplot(summ2[model %in% unique(summ2$model)[c(1:3, 5)]],
 	                 aes(x = Yr, y = SSB,size = model, color = model, linetype = model, fill = model)) +
@@ -456,6 +458,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", "red", 3), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 3), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Spawning biomass (t)", x = "Year", title = "Projections Scenario_2")
+	  ggsave(here::here("plots", "SS_2.png"),
+	         plot = SS_2)
 	  
 	  SS_3 <- ggplot(summ2[model %in% unique(summ2$model)[c(1:3, 6)]], 
 	               aes(x = Yr, y = SSB, size = model, color = model, linetype = model, fill = model)) +
@@ -468,6 +472,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", "red", 4), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 3), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Spawning biomass (t)", x = "Year", title = "Projections Scenario 3 - Average F")
+	  ggsave(here::here("plots", "SS_3.png"),
+	         plot = SS_3)
 	  
 	  SS_4 <- ggplot(summ2[model %in% unique(summ2$model)[c(1:3, 7)]], 
 	               aes(x = Yr, y = SSB, size = model, color = model, linetype = model, fill = model)) +
@@ -480,6 +486,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", "red", 5), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 3), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Spawning biomass (t)", x = "Year", title = "Projections Scenario 4 - F75%")
+	  ggsave(here::here("plots", "SS_4.png"),
+	         plot = SS_4)
 	  
 	  SS_5 <- ggplot(summ2[model %in% unique(summ2$model)[c(1:3, 8)]], 
 	               aes(x = Yr, y = SSB, size = model, color = model, linetype = model, fill = model))+
@@ -492,6 +500,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", "red", 6), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 3), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Spawning biomass (t)", x = "Year", title = "Projections Scenario 5 - No catch")   
+	  ggsave(here::here("plots", "SS_2.png"),
+	         plot = SS_5)
 	  
 	  SS_6 <- ggplot(summ2[model %in% unique(summ2$model)[c(1:3, 9, 10)]], 
 	               aes(x = Yr, y = SSB, size = model, color = model, linetype = model, fill = model))+
@@ -504,6 +514,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", "red", 8, 9), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 3), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Spawning biomass (t)", x = "Year", title = "Projections Scenarios 6 and 7")
+	  ggsave(here::here("plots", "SS_6.png"),
+	         plot = SS_6)
 	  
 	  Figs_SSB <- list(SS_ALL, SS_1, SS_2, SS_3, SS_4, SS_5, SS_6)
 	  
@@ -518,6 +530,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", 2:6, 8, 9), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 2), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Catch (t)", x = "Year", title = "Projections")
+	  ggsave(here::here("plots", "C_ALL.png"),
+	         plot = C_ALL)
 	  
 	  C_1 <- ggplot(Pcatch2[model %in% unique(Pcatch2$model)[1:3]], 
 	              aes(x = Yr, y = Catch, size = model, color = model, linetype = model, fill = model)) +
@@ -530,6 +544,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", 2), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 2), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Catch (t)", x = "Year", title = "Projections MaxFABC")
+	  ggsave(here::here("plots", "C_1.png"),
+	         plot = C_1)
 	  
 	  C_2 <- ggplot(Pcatch2[model %in% unique(Pcatch2$model)[c(1:2, 4)]], 
 	                aes(x = Yr, y = Catch, size = model, color = model, linetype = model, fill = model)) +
@@ -542,6 +558,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", 3), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 2), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Catch (t)", x = "Year", title = "Projections Scenario 2")
+	  ggsave(here::here("plots", "C_2.png"),
+	         plot = C_2)
 	  
 	  C_3 <- ggplot(Pcatch2[model %in% unique(Pcatch2$model)[c(1:2, 5)]], 
 	                aes(x = Yr, y = Catch, size = model, color = model, linetype = model, fill = model)) +
@@ -554,6 +572,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", 5), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 2), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Catch (t)", x = "Year", title = "Projections Scenario 3 - Average F")
+	  ggsave(here::here("plots", "C_3.png"),
+	         plot = C_3)
 	  
 	  C_4 <- ggplot(Pcatch2[model %in% unique(Pcatch2$model)[c(1:2, 6)]], 
 	                aes(x = Yr, y = Catch, size = model, color = model, linetype = model, fill = model))+
@@ -566,6 +586,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", 4), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 2), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Catch (t)", x = "Year", title = "Projections Scenario 4 - F75%")
+	  ggsave(here::here("plots", "C_4.png"),
+	         plot = C_4)
 	  
 	  C_6 <- ggplot(Pcatch2[model %in% unique(Pcatch2$model)[c(1:2, 8, 9)]], 
 	                aes(x = Yr, y = Catch, size = model, color = model, linetype = model, fill = model))+
@@ -578,6 +600,8 @@ Do_AK_Scenarios<-function(Model_name = NULL,
 	    scale_color_manual(values = c("dark green", "orange", 8, 9), name = "Scenarios") +
 	    scale_size_manual(values = c(rep(1.5, 2), rep(1, 7)), name = "Scenarios") +
 	    labs(y = "Catch (t)", x = "Year", title = "Projections Scenarios 6 and 7")
+	  ggsave(here::here("plots", "C_6.png"),
+	         plot = C_6)
 	  
 	  Figs_Catch <- list(C_ALL, C_1, C_2, C_3, C_4, C_6)
 	  output$FIGS = list(Figs_SSB, Figs_Catch)
