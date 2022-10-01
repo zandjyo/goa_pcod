@@ -90,7 +90,7 @@ write.csv(retroSummary$SpawnBio, here::here("output", "retro_SSB.csv"))
 write.csv(retroSummary$recruits, here::here("output", "retro_Rec.csv"))
 write.csv(rho_output_ss3diags, here::here("output", "retro_Rho_ss3diags.csv"))
 
-## All the r4ss retrospective stuff kinda sux but keeping it here in case want to use in future
+## All the r4ss retrospective stuff kinda sux but keeping it here to maybe use in future
 # r4ss::SSplotComparisons(retroSummary,
 #                         endyrvec = endyrvec,
 #                         legendlabels = paste("Data", 0:-10, "years"),
