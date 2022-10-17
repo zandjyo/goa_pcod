@@ -27,7 +27,7 @@ if (!file.exists(here::here("plots"))){
 
 # Remove previous dat files from output folder
 if (file.exists(here::here("output")) & length(list.files(here::here("output"), pattern = "GOAPcod")) > 1) 
-  unlink(list.files(here::here("output"), pattern = "GOAPcod"))
+  file.remove(here::here("output", list.files(here::here("output"), pattern = "GOAPcod")))
 
 ## DEFINE ALL CONSTANTS FOR THIS RUN
 

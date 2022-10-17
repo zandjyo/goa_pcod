@@ -46,6 +46,33 @@ if(data_query == TRUE){
                       akfin_pass, 
                       believeNRows=FALSE)}
 
+
+# Define plot function
+multiplot <- function(..., plotlist = NULL, cols) {
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # Make the panel
+  plotCols = cols                          # Number of columns of plots
+  plotRows = ceiling(numPlots/plotCols) # Number of rows needed, calculated from # of cols
+  
+  # Set up the page
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(plotRows, plotCols)))
+  vplayout <- function(x, y)
+    grid::viewport(layout.pos.row = x, layout.pos.col = y)
+  
+  # Make each plot, in the correct location
+  for (i in 1:numPlots) {
+    curRow = ceiling(i/plotCols)
+    curCol = (i-1) %% plotCols + 1
+    print(plots[[i]], vp = vplayout(curRow, curCol ))
+  }
+}
+
 #######################################################################################
 ######## Plot base model
 
@@ -124,6 +151,39 @@ multiplot(mcmc_plots[[1]], mcmc_plots[[2]], cols = 1)
 dev.print(png, file = here::here("plots", "nonSS", "SSB_Rec.png"), width = 1024, height = 1000)
 dev.off()
 
+
+#######################################################################################
+######## Plot index time series
+
+source(here::here("R", "plots", "index_figures.r"))
+
+# Plot indices
+index_plots <- plot_indices(styr = 1990, endyr = new_SS_dat_year)
+
+index_plots[[1]]
+dev.print(png, file = here::here("plots", "nonSS", "fitted_indices.png"), width = 700, height = 700)
+dev.off()
+
+index_plots[[2]]
+dev.print(png, file = here::here("plots", "nonSS", "nonfitted_indices.png"), width = 700, height = 700)
+dev.off()
+
+index_plots[[3]]
+dev.print(png, file = here::here("plots", "nonSS", "age0_index.png"), width = 700, height = 400)
+dev.off()
+
+
+#######################################################################################
+######## Plot Leave-One-Out analysis results
+
+load(here::here("output", "LOO.RData"))
+
+# Plot parameters from Leave one out
+LOO[[2]]
+dev.print(png, file = here::here("plots", "nonSS", "LOO.png"), width = 700, height = 700)
+dev.off()
+
+
 #######################################################################################
 ######## Plot Cumulative catch
 
@@ -156,7 +216,7 @@ source(here::here("R", "plots", "Fisheries_Condition.r"))
 
 # Fish condition
 cond_plot <- plot_fish_cond(CYR = new_SS_dat_year,
-                            data_query = FALSE)
+                            data_query = TRUE)
 
 cond_plot[[1]]
 dev.print(png, file = here::here("plots", "nonSS", "Cond_WGOA.png"), width = 700, height = 700)
@@ -168,7 +228,7 @@ dev.off()
 
 ## number of vessels
 num_vess <- num_fish_vess(CYR = new_SS_dat_year,
-                          data_query = FALSE)
+                          data_query = TRUE)
 
 num_vess
 dev.print(png, file = here::here("plots", "nonSS", "num_vess.png"), width = 700, height = 400)
@@ -181,47 +241,17 @@ dev.off()
 source(here::here("R", "plots", "cod_bycatch_plots.r"))
 
 # Pollock plots
-pol_plots <- pollock_bycatch(data_query = FALSE)
+pol_plots <- pollock_bycatch(data_query = TRUE)
 
 multiplot(pol_plots[[1]], pol_plots[[2]], cols = 1)
 dev.print(png, file = here::here("plots", "nonSS", "poll_bycatch.png"), width = 700, height = 700)
 dev.off()
 
 # SWF plots
-swf_plot <- swf_bycatch(CYR = new_SS_dat_year, data_query = FALSE)
+swf_plot <- swf_bycatch(CYR = new_SS_dat_year, data_query = TRUE)
 
 swf_plot
 dev.print(png, file = here::here("plots", "nonSS", "swf_bycatch.png"), width = 700, height = 400)
 dev.off()
 
-#######################################################################################
-######## Plot index time series
-
-source(here::here("R", "plots", "index_figures.r"))
-
-# Plot indices
-index_plots <- plot_indices(styr = 1990, endyr = new_SS_dat_year)
-
-index_plots[[1]]
-dev.print(png, file = here::here("plots", "nonSS", "fitted_indices.png"), width = 700, height = 700)
-dev.off()
-
-index_plots[[2]]
-dev.print(png, file = here::here("plots", "nonSS", "nonfitted_indices.png"), width = 700, height = 700)
-dev.off()
-
-index_plots[[3]]
-dev.print(png, file = here::here("plots", "nonSS", "age0_index.png"), width = 700, height = 400)
-dev.off()
-
-
-#######################################################################################
-######## Plot Leave-One-Out analysis results
-
-load(here::here("output", "LOO.RData"))
-
-# Plot parameters from Leave one out
-LOO[[2]]
-dev.print(png, file = here::here("plots", "nonSS", "LOO.png"), width = 700, height = 700)
-dev.off()
 
