@@ -37,6 +37,10 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                               len_bins = seq(4,109,3),
                               max_age = 10,
                               is_new_SS_DAT_file = FALSE,
+                              update_adfg_iphc = FALSE,
+                              inc_ADFG = FALSE,
+                              sndz_lc = FALSE,
+                              catch_table = FALSE,
                               AUXFCOMP = 3)
 {
   
@@ -104,6 +108,47 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   CATCH2 <- merge(CATCH2, grid, all = T)
   CATCH2$TONS[is.na(CATCH2$TONS)] <- 0.0
   
+  ## add 97 - 02 adf&g catch
+  if(inc_ADFG == TRUE){
+    
+    test <- paste0("SELECT akfin_year,\n ",
+                   "FMP_AREA,\n ",
+                   "adfg_i_harvest_code,\n ",
+                   "fmp_gear,\n ",
+                   "SUM (cfec_whole_pounds / 2204.622) AS CATCH_MT\n ",
+                   "FROM council.comprehensive_Ft\n ",
+                   "WHERE akfin_year BETWEEN 1997 AND 2002\n ",
+                   "AND adfg_i_species_code = 110\n ",
+                   "AND adfg_i_harvest_code = 80\n ",
+                   "AND fmp_area = 'GOA'\n ",
+                   "GROUP BY adfg_i_harvest_code,\n ",
+                   "FMP_AREA,\n ",
+                   "fmp_gear,\n ",
+                   "akfin_year")
+    
+    ADFG_CATCH <- sqlQuery(CHINA, test)
+    
+    ADFG_CATCH %>% 
+      group_by(AKFIN_YEAR, FMP_GEAR) %>% 
+      mutate(GEAR = if(FMP_GEAR %in% c("JIG", "HAL")){"LONGLINE"}else{"POT"},
+             YEAR = AKFIN_YEAR) %>% 
+      group_by(YEAR, GEAR) %>% 
+      summarise(CATCH = sum(CATCH_MT)) -> ADFG_CATCH2
+    
+    CATCH2 %>% 
+      filter(YEAR %in% seq(1997,2002) & GEAR != 'TRAWL') %>% 
+      group_by(YEAR, GEAR) %>% 
+      left_join(ADFG_CATCH2) %>% 
+      mutate(TOTAL = TONS + CATCH) %>% 
+      select(YEAR, GEAR, TOTAL) %>% 
+      rename(TONS = TOTAL) -> CATCH2wADFG
+    
+    CATCH2 %>% 
+      filter(!(YEAR%in% seq(1997,2002) & GEAR != 'TRAWL')) %>% 
+      bind_rows(CATCH2wADFG) -> CATCH2
+    
+  }
+  
   ## sort CATCH by gear and year
   CATCH <- CATCH2[order(CATCH2$GEAR,CATCH2$YEAR), ]
   CATCH <- data.table(CATCH)
@@ -129,6 +174,128 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   ## write catch data into new data files
   new_data$N_catch <- nrow(catch)
   new_data$catch <- catch
+  
+  ## Get catch for SAFE catch tables
+  if(catch_table == TRUE){
+    
+    test <- paste("SELECT SUM(COUNCIL.COMPREHENSIVE_BLEND_CA.WEIGHT_POSTED)AS TONS,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_SUBAREA AS ZONE,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_GEAR AS GEAR,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.RETAINED_OR_DISCARDED AS TYPE,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.YEAR AS YEAR,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.AKR_STATE_FISHERY_FLAG AS STATE_FLAG,\n ",
+                  "TO_CHAR(COUNCIL.COMPREHENSIVE_BLEND_CA.WEEK_END_DATE,'MM') AS MONTH, \n",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.SPECIES_GROUP_CODE AS SPECIES_GROUP\n ",
+                  "FROM COUNCIL.COMPREHENSIVE_BLEND_CA\n ",
+                  "WHERE COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_SUBAREA in (",fsh_sp_area,")\n ",
+                  "AND COUNCIL.COMPREHENSIVE_BLEND_CA.YEAR <= ",new_year,"\n ",
+                  "AND COUNCIL.COMPREHENSIVE_BLEND_CA.SPECIES_GROUP_CODE in (",fsh_sp_label,")\n ",
+                  "GROUP BY COUNCIL.COMPREHENSIVE_BLEND_CA.SPECIES_GROUP_CODE,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_SUBAREA,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.FMP_GEAR,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.RETAINED_OR_DISCARDED,\n ",
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.YEAR,\n ", 
+                  "COUNCIL.COMPREHENSIVE_BLEND_CA.AKR_STATE_FISHERY_FLAG,\n ",
+                  "TO_CHAR(COUNCIL.COMPREHENSIVE_BLEND_CA.WEEK_END_DATE,'MM')", sep="")
+    
+    CATCH <- sqlQuery(CHINA, test)
+    
+    test <- paste0("SELECT akfin_year,\n ",
+                   "FMP_AREA,\n ",
+                   "adfg_i_harvest_code,\n ",
+                   "fmp_gear,\n ",
+                   "SUM (cfec_whole_pounds / 2204.622) AS CATCH_MT\n ",
+                   "FROM council.comprehensive_Ft\n ",
+                   "WHERE akfin_year BETWEEN 1997 AND 2002\n ",
+                   "AND adfg_i_species_code = 110\n ",
+                   "AND adfg_i_harvest_code = 80\n ",
+                   "AND fmp_area = 'GOA'\n ",
+                   "GROUP BY adfg_i_harvest_code,\n ",
+                   "FMP_AREA,\n ",
+                   "fmp_gear,\n ",
+                   "akfin_year")
+    
+    ADFG_CATCH <- sqlQuery(CHINA, test)
+
+    # Get table by jurisdiction and gear
+    CATCH %>% 
+      rename_all(tolower) %>%  
+      mutate(state_flag = replace_na(state_flag, "N")) %>% 
+      filter(state_flag != "Y") %>% 
+      mutate(gear = case_when(gear == "TRW" ~ "fed_trawl",
+                              gear == "HAL" ~ "fed_longline",
+                              gear == "POT" ~ "fed_pot",
+                              gear %in% c("JIG", "OTH", "GLN") ~ "fed_other")) %>% 
+      group_by(year, gear) %>% 
+      summarise(catch = round(sum(tons))) %>% 
+      pivot_wider(names_from = gear, values_from = catch) %>% 
+      select(year, fed_trawl, fed_longline, fed_pot, fed_other) %>% 
+      mutate(fed_other = replace_na(fed_other, 0)) %>% 
+      mutate(fed_tot = fed_trawl + fed_longline + fed_pot + fed_other) -> fed_gr_tbl
+
+    CATCH %>% 
+      rename_all(tolower) %>%  
+      mutate(state_flag = replace_na(state_flag, "N")) %>% 
+      filter(state_flag == "Y") %>% 
+      mutate(gear = case_when(gear == "HAL" ~ "st_longline",
+                              gear == "POT" ~ "st_pot",
+                              gear %in% c("JIG", "OTH", "GLN") ~ "st_other")) %>% 
+      group_by(year, gear) %>% 
+      summarise(catch = round(sum(tons))) %>% 
+      pivot_wider(names_from = gear, values_from = catch) %>% 
+      select(year, st_longline, st_pot, st_other) %>% 
+      mutate(st_other = replace_na(st_other, 0)) %>% 
+      mutate(st_tot = st_longline + st_pot + st_other) -> st_gr_tbl1  
+    
+    ADFG_CATCH %>% 
+      rename_all(tolower) %>% 
+      select(akfin_year, fmp_gear, catch_mt) %>% 
+      rename(year = akfin_year,
+             gear = fmp_gear,
+             tons = catch_mt) %>% 
+      mutate(gear = case_when(gear == "HAL" ~ "st_longline",
+                              gear == "POT" ~ "st_pot",
+                              gear %in% c("JIG", "OTH", "GLN") ~ "st_other")) %>% 
+      group_by(year, gear) %>% 
+      summarise(catch = round(sum(tons))) %>% 
+      pivot_wider(names_from = gear, values_from = catch) %>% 
+      mutate(st_longline = replace_na(st_longline, 0)) %>% 
+      select(year, st_longline, st_pot, st_other) %>% 
+      mutate(st_tot = st_longline + st_pot + st_other) %>% 
+      bind_rows(st_gr_tbl1) -> st_gr_tbl
+    
+    fed_gr_tbl %>% 
+      left_join(st_gr_tbl) %>% 
+      replace(is.na(.), 0) %>% 
+      mutate(tot = fed_tot + st_tot) -> juris_gr_tbl
+    
+    # Get retained/discarded table
+    ADFG_CATCH %>% 
+      rename_all(tolower) %>% 
+      select(akfin_year, fmp_gear, catch_mt) %>% 
+      rename(year = akfin_year,
+             gear = fmp_gear,
+             tons = catch_mt) %>% 
+      group_by(year) %>% 
+      summarise(catch = sum(tons)) -> st_tot
+      
+    CATCH %>% 
+      rename_all(tolower) %>% 
+      group_by(year, type) %>% 
+      summarise(catch = sum(tons)) %>%  
+      pivot_wider(names_from = type, values_from = catch) %>% 
+      left_join(st_tot) %>% 
+      replace(is.na(.), 0) %>% 
+      mutate(retained = R + catch) %>% 
+      rename(discarded = D) %>% 
+      select(year, discarded, retained) %>% 
+      mutate(total = discarded + retained) -> dr_tbl
+    
+    # Write out results
+    vroom::vroom_write(juris_gr_tbl, here::here('output', 'juris_gr_tbl.csv'), delim = ",")
+    vroom::vroom_write(dr_tbl, here::here('output', 'dr_tbl.csv'), delim = ",")
+
+  }
   
   
   ## ----- Get trawl survey pop'n estimates -----
@@ -172,35 +339,73 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   ## ADF&G and IPHC survey files included here
 
   if(exists("ADFG_IPHC")){ 
-    names(ADFG_IPHC)<-names(CPUE)
-    CPUE<-rbind(CPUE,ADFG_IPHC)
+    
+    # If update to ADF%G and IPHC surveys desired
+    if(update_adfg_iphc == TRUE){
+      
+      # Update IPHC
+      IPHC <- sqlQuery(CHINA, query = ("
+                select    *
+                from      afsc_host.fiss_rpn
+                where     species in ('Pacific cod')"))
+      
+      IPHC %>%
+        rename_all(tolower) %>%
+        filter(fmp_sub_area %in% c("CGOA", "EY/SE", "WGOA", "WY")) %>%
+        group_by(survey_year) %>%
+        summarise(rpn2 = sum(strata_rpn),
+                  cv = sqrt(sum(boot_sd^2)) / sum(strata_rpn)) %>%
+        rename(year = survey_year) %>%
+        mutate(seas = 7, index = -6) %>%
+        select(year, seas, index, rpn2, cv) %>% 
+        left_join(filter(ADFG_IPHC, index == -6)) %>% 
+        filter(year != 2020) %>% 
+        mutate(se_log = replace_na(se_log,mean(se_log, na.rm = TRUE))) %>% # for now new year cv is mean of historical cv's
+        select(-obs, -cv) %>% 
+        rename(obs = rpn2) -> iphc
+      
+      # Update ADF&G (model and raw catches not included in github)
+      dglm = dget(here::here('data', "delta_glm_1-7-2.get"))
+      coddata <- vroom::vroom(here::here('data', 'ADFGsurvcatch.csv'))
+      
+      coddata %>% 
+        filter(district %in% c(1,2,6),
+               !is.na(avg_depth_fm),
+               !is.na(start_longitude)) %>% 
+        mutate(depth = case_when(avg_depth_fm <= 30 ~ 1,
+                                 avg_depth_fm > 30 & avg_depth_fm <= 70 ~ 2,
+                                 avg_depth_fm > 70 ~ 3),
+               density = total_weight_kg / area_km2) %>% 
+        select(density, year, district, depth) -> mydata
+      
+      codout = dglm(mydata, dist = "lognormal", write = F, J = T)
+      
+      codout$deltaGLM.index %>% 
+        mutate(year = as.numeric(rownames(.))) %>% 
+        as_tibble(.)  %>% 
+        rename(obs = index,
+               mean = jack.mean,
+               se = jack.se,
+               se_log = jack.cv) %>% 
+        mutate(seas = 7, index = -7) %>%
+        dplyr::select(year, seas, index, obs, se_log) -> adfg
+      
+      # Update both indices in SS file and data folder
+      iphc %>% 
+        bind_rows(adfg) -> adfg_iphc 
+      vroom::vroom_write(adfg_iphc, here::here('data', 'ADFG_IPHC_updated.csv'), delim = ",")
+      names(adfg_iphc) <- names(CPUE)
+      CPUE <- rbind(CPUE, iphc, adfg)
+    }
+    
+    # If update to ADF%G and IPHC surveys desired
+    if(update_adfg_iphc == FALSE){
+      names(ADFG_IPHC) <- names(CPUE)
+      CPUE <- rbind(CPUE, ADFG_IPHC)
+    }
+    
   }else {print("Warning:  no ADFG_IPHC file appears to exist here")}
   
-  # IPHC <- sqlQuery(CHINA, query = ("
-  #               select    *
-  #               from      afsc_host.fiss_rpn
-  #               where     species in ('Pacific cod')"))
-  # 
-  # IPHC %>% 
-  #   rename_all(tolower) %>% 
-  #   filter(fmp_sub_area %in% c("CGOA", "EY/SE", "WGOA", "WY")) %>% 
-  #   group_by(survey_year) %>% 
-  #   summarise(rpn2 = sum(strata_rpn),
-  #             cv = sqrt(sum(boot_sd^2)) / sum(strata_rpn)) %>% 
-  #   rename(year = survey_year,
-  #          obs = rpn2,
-  #          se_log = cv) %>% 
-  #   mutate(seas = 7, index = -6) %>% 
-  #   select(year, seas, index, obs, se_log) -> iphc
-  # 
-  # if(exists("ADFG")){ 
-  #   names(ADFG) <- names(CPUE)
-  # }else {print("Warning:  no ADFG file appears to exist here")}
-  # 
-  # rbind(iphc, ADFG)
-  # 
-  # CPUE <- rbind(CPUE, IPHC, ADFG)
-
   ## Larval survey indices included here
   if(exists("Larval_indices")){ 
     names(Larval_indices) <- names(CPUE)
@@ -227,6 +432,7 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
   
   ## ----- Get fishery size composition data -----
   
+  # If no auxiliary state data
   FISHLCOMP <- data.frame(GET_GOA_LENCOMP2(fsh_sp_str1 = 202, 
                                            len_bins1 = len_bins, 
                                            fsh_start_yr1 = fsh_start_yr, 
@@ -237,30 +443,39 @@ SBSS_GET_ALL_DATA <- function(new_data = new_data,
                                            Nsamp = -1)) 
   names(FISHLCOMP) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
   
+  # if state lengths included in length dataset
   if(AUXFCOMP > 0){
-    auxFLCOMP <- LENGTH_BY_CATCH_GOA(fsh_sp_str = fsh_sp_str,
-                                     fsh_sp_label = fsh_sp_label,
-                                     ly = new_year)
-    if(AUXFCOMP == 1) auxFLCOMP <- auxFLCOMP[[1]]
-    if(AUXFCOMP == 2) auxFLCOMP <- auxFLCOMP[[2]]
-    if(AUXFCOMP == 3) auxFLCOMP <- auxFLCOMP[[3]]
     
-    auxFLCOMP$FltSrv <- 1
-    auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "LONGLINE"] <- 2
-    auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "POT"] <- 3
+      auxFLCOMP <- LENGTH_BY_CATCH_GOA(fsh_sp_str = fsh_sp_str,
+                                       fsh_sp_label = fsh_sp_label,
+                                       ly = new_year)
+      if(AUXFCOMP == 1) auxFLCOMP <- auxFLCOMP[[1]]
+      if(AUXFCOMP == 2) auxFLCOMP <- auxFLCOMP[[2]]
+      if(AUXFCOMP == 3) auxFLCOMP <- auxFLCOMP[[3]]
+      
+      auxFLCOMP$FltSrv <- 1
+      auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "LONGLINE"] <- 2
+      auxFLCOMP$FltSrv[auxFLCOMP$GEAR == "POT"] <- 3
+      
+      auxflCOMP1 = data.frame(Year = auxFLCOMP$YEAR,
+                              Seas = rep(1, nrow(auxFLCOMP)),
+                              FltSrv = auxFLCOMP$FltSrv,
+                              gender = rep(0, nrow(auxFLCOMP)),
+                              Part = rep(0, nrow(auxFLCOMP)),
+                              Nsamp = auxFLCOMP$Nsamp,
+                              auxFLCOMP[ , 4:(ncol(auxFLCOMP) - 1)])
+      names(auxflCOMP1) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
+      
+      fishLCOMP = subset(FISHLCOMP, FISHLCOMP$Year < 1991)
+      fishLCOMP <- rbind(fishLCOMP, auxflCOMP1)
+      FISHLCOMP <- fishLCOMP[order(fishLCOMP$FltSrv, fishLCOMP$Year), ]
     
-    auxflCOMP1 = data.frame(Year = auxFLCOMP$YEAR,
-                            Seas = rep(1, nrow(auxFLCOMP)),
-                            FltSrv = auxFLCOMP$FltSrv,
-                            gender = rep(0, nrow(auxFLCOMP)),
-                            Part = rep(0, nrow(auxFLCOMP)),
-                            Nsamp = auxFLCOMP$Nsamp,
-                            auxFLCOMP[ , 4:(ncol(auxFLCOMP) - 1)])
-    names(auxflCOMP1) <- c("Year", "Seas", "FltSrv", "Gender", "Part", "Nsamp", len_bins)
-    
-    fishLCOMP = subset(FISHLCOMP, FISHLCOMP$Year < 1991)
-    fishLCOMP <- rbind(fishLCOMP, auxflCOMP1)
-    FISHLCOMP <- fishLCOMP[order(fishLCOMP$FltSrv, fishLCOMP$Year), ]
+    # standardize length comps
+    if(sndz_lc == TRUE){
+      for(i in 1:length(FISHLCOMP[,1])){
+        FISHLCOMP[i,7:length(FISHLCOMP[1,])] <- FISHLCOMP[i,7:length(FISHLCOMP[1,])] / sum(FISHLCOMP[i,7:length(FISHLCOMP[1,])])
+      }
+    }
   }
   
   print("Fisheries LCOMP2 done")

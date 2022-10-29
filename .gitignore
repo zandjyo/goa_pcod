@@ -53,11 +53,11 @@ Data_comparison.xlsx
 catch_diffs.xlsx
 Hist_SSB.xlsx
 Hist_trawl_fit.xlsx
-output/
-plots/
+COMPREHENSIVE_OBS_EM.csv
 emailed data/
-SAFE/
 mngmnt_scenarios/
 retrospectives/
 LeaveOneOut/
 MCMC/
+delta_glm_1-7-2.get
+ADFGsurvcatch.csv

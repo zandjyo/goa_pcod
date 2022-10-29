@@ -9,7 +9,7 @@
 #C rerun model to get more complete formatting in starter.ss_new
 #C should work with SS version: SSv3.10b_or_later
 #C file write time: 2016-02-22 17:29:02
-GOAPcod2022Sep17.dat
+GOAPcod2022Oct25.dat
 Model19.1_22.ctl
 1 # 0=use init values in control file; 1=use ss.par
 1 # run display detail (0,1,2)

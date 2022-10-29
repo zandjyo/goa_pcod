@@ -145,7 +145,7 @@ SS_doLOO <- function (Model_name = NULL,
   x3 <- x2[!variable %like% "_SD"]
   x4 <- x2[variable %like% "_SD"]
   x3$SD <- x4$value
-  x3$Year <- 2022 - x3$LOO
+  x3$Year <- CYR - x3$LOO
   
   # Plot LOO analysis
   d <- ggplot(x3[LOO != 0],

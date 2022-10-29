@@ -3,6 +3,7 @@
 ## ZTA, 2021-10-07, R version 4.05.01 64 bit
 ## GOA Pacific cod
 ## Altered in 2022 by Pete Hulson
+## Sections denoted with ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< need to be updated at the start of each assessment cycle
 
 # Load libraries
 libs <- c("r4ss",
@@ -14,33 +15,47 @@ libs <- c("r4ss",
           "tidyr")
 
 if(length(libs[which(libs %in% rownames(installed.packages()) == FALSE )]) > 0) {
-  install.packages(libs[which(libs %in% rownames(installed.packages()) == FALSE)])}
+  install.packages(libs[which(libs %in% rownames(installed.packages()) == FALSE)])
+}
 
 lapply(libs, library, character.only = TRUE)
 
 # Make folders for output and plots
-if (!file.exists(here::here("output"))) 
+if (!file.exists(here::here("output"))){
   dir.create(here::here("output"))
+}
 if (!file.exists(here::here("plots"))){
   dir.create(here::here("plots", "assessment"), recursive = TRUE)
-  dir.create(here::here("plots", "nonSS"), recursive = TRUE)}
+  dir.create(here::here("plots", "nonSS"), recursive = TRUE)
+}
 
 # Remove previous dat files from output folder
-if (file.exists(here::here("output")) & length(list.files(here::here("output"), pattern = "GOAPcod")) > 1) 
+if (file.exists(here::here("output")) & length(list.files(here::here("output"), pattern = "GOAPcod")) > 0) {
   file.remove(here::here("output", list.files(here::here("output"), pattern = "GOAPcod")))
+}
 
 ## DEFINE ALL CONSTANTS FOR THIS RUN
 
-# Current model name
-Model_name <- "Model19.1 (22)"
+## ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))<
 
 # previous SS DAT filename, if it exists
 old_SS_dat_filename <- "GOAPcod2021OCT1_10P_CL.dat"
 
-# current SS DAT filename
+# historical SS DAT filename
 new_SS_dat_filename <- paste0("GOAPcod", 
                               format(Sys.Date(), format = "%Y%b%d"),
                               ".dat")
+
+# SS DAT filename w/ ADF&G catch
+new_SS_dat_filename_wADFG <- paste0("GOAPcod", 
+                              format(Sys.Date(), format = "%Y%b%d"),
+                              "_wADFG",
+                              ".dat")
+
+# Update IPHC & ADF&G survey indices? TRUE if first time running this script, FALSE for every run thereafter
+update_adfg_iphc <- FALSE
+
+## ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))< ~~~~ <*)))<
 
 # Current assessment year
 new_SS_dat_year <- as.numeric(format(Sys.Date(), format = "%Y"))
@@ -81,9 +96,11 @@ max_age <- 10
 ## Get all the alternative data that isn't in AKFIN or AFSC databases
 OLD_SEAS_GEAR_CATCH <- vroom::vroom(here::here('data', 'OLD_SEAS_GEAR_CATCH.csv'))
 Larval_indices <- vroom::vroom(here::here('data', 'Larval_indices.csv'))
-ADFG_IPHC <- vroom::vroom(here::here('data', 'ADFG_IPHC.csv'))
 ALL_STATE_LENGTHS <- vroom::vroom(here::here('data', 'ALL_STATE_LENGTHS.csv'))
 TEMPHW <- vroom::vroom(here::here('data', 'TEMPANDHEAT.csv'))
+if(update_adfg_iphc == TRUE){
+  ADFG_IPHC <- vroom::vroom(here::here('data', 'ADFG_IPHC.csv'))
+}else{ADFG_IPHC <- vroom::vroom(here::here('data', 'ADFG_IPHC_updated.csv'))}
 
 ## Get all the functions for pulling GOA Pcod data
 source(here::here("R", "data", "BIN_LEN_DATA.r"))
@@ -102,7 +119,7 @@ source(here::here("R", "data", "GET_LENGTH_BY_CATCH_GOA.R"))
 source(here::here("R", "data", "GET_SURV_AGE_cor.r"))
 
 ## Open up data base connections
-db <- read.csv(here::here("database_specs.csv"))
+db <- vroom::vroom(here::here("database_specs.csv"))
 afsc_user = db$username[db$database == "AFSC"]
 afsc_pass = db$password[db$database == "AFSC"]
 akfin_user = db$username[db$database == "AKFIN"]
@@ -124,6 +141,7 @@ if (!is_new_SS_DAT_file){
   old_data <- r4ss::SS_readdat_3.30(here::here("data", old_SS_dat_filename))
   new_data <- old_data}else{print(" Warning:  Need to enter old SS data file name")}
 
+# historical data
 new_data <- SBSS_GET_ALL_DATA(new_data = new_data,
                               new_file = new_SS_dat_filename,
                               new_year = new_SS_dat_year,
@@ -137,14 +155,42 @@ new_data <- SBSS_GET_ALL_DATA(new_data = new_data,
                               len_bins = len_bins,
                               max_age = max_age,
                               is_new_SS_DAT_file = is_new_SS_DAT_file,
+                              update_adfg_iphc = update_adfg_iphc,
+                              inc_ADFG = FALSE,
+                              sndz_lc = FALSE,
+                              catch_table = FALSE,
                               AUXFCOMP = 3)
 
-close(AFSC)
-close(CHINA)
+# w/ adf&g catch
+new_data_adfg <- SBSS_GET_ALL_DATA(new_data = new_data,
+                              new_file = new_SS_dat_filename,
+                              new_year = new_SS_dat_year,
+                              sp_area = sp_area,
+                              fsh_sp_label = fsh_sp_label,
+                              fsh_sp_area = fsh_sp_area,
+                              fsh_sp_str = fsh_sp_str,
+                              fsh_start_yr = fsh_start_yr,
+                              srv_sp_str = srv_sp_str,
+                              srv_start_yr = srv_start_yr,
+                              len_bins = len_bins,
+                              max_age = max_age,
+                              is_new_SS_DAT_file = is_new_SS_DAT_file,
+                              update_adfg_iphc = update_adfg_iphc,
+                              inc_ADFG = TRUE,
+                              sndz_lc = FALSE,
+                              catch_table = TRUE,
+                              AUXFCOMP = 3)
 
 # Write out data script
 r4ss::SS_writedat_3.30(new_data,
-                       here::here("output", new_SS_dat_filename))
+                       here::here("output", new_SS_dat_filename), overwrite = TRUE)
+r4ss::SS_writedat_3.30(new_data_adfg,
+                       here::here("output", new_SS_dat_filename_wADFG), overwrite = TRUE)
 
-# test that the new file is readable
-test_dat <- r4ss::SS_readdat_3.30(here::here("output", new_SS_dat_filename), verbose = TRUE)
+# # test that the new file is readable
+# test_dat <- r4ss::SS_readdat_3.30(here::here("output", new_SS_dat_filename), verbose = TRUE)
+
+
+
+
+
